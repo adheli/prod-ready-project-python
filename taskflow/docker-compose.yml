@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  user_service:
+    build: ./user_service
+    environment:
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@postgres:5432/user_db
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET: super-secret
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "8000:8000"
+
+  task_service:
+    build: ./task_service
+    environment:
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@postgres:5432/task_db
+      REDIS_URL: redis://redis:6379/0
+      USER_SERVICE_URL: http://user_service:8000
+    depends_on:
+      - postgres
+      - redis
+      - user_service
+    ports:
+      - "8001:8001"
+
+volumes:
+  pg_data:
