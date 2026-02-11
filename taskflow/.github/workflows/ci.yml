@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test-services:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [user_service, task_service]
+    defaults:
+      run:
+        working-directory: taskflow/${{ matrix.service }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run tests
+        env:
+          DATABASE_URL: sqlite:///./ci.db
+          REDIS_URL: redis://localhost:6379/0
+          USER_SERVICE_URL: http://localhost:8000
+        run: pytest -q
