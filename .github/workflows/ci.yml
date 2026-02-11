@@ -12,7 +12,7 @@ jobs:
         service: [user_service, task_service]
     defaults:
       run:
-        working-directory: taskflow/${{ matrix.service }}
+        working-directory: ${{ matrix.service }}
 
     steps:
       - uses: actions/checkout@v4

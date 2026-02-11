@@ -17,7 +17,7 @@ services:
       - "6379:6379"
 
   user_service:
-    build: ./user_service
+    build: user_service
     environment:
       DATABASE_URL: postgresql+psycopg2://postgres:postgres@postgres:5432/user_db
       REDIS_URL: redis://redis:6379/0
@@ -29,7 +29,7 @@ services:
       - "8000:8000"
 
   task_service:
-    build: ./task_service
+    build: task_service
     environment:
       DATABASE_URL: postgresql+psycopg2://postgres:postgres@postgres:5432/task_db
       REDIS_URL: redis://redis:6379/0
