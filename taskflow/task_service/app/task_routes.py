@@ -5,8 +5,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from app.db import get_db
-from app.services import TaskService
+from task_db import get_db
+from task_services import TaskService
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
@@ -65,9 +65,9 @@ def delete_task(task_id: int, db: Session = Depends(get_db)):
 
 @router.get("")
 def list_tasks(
-    status: Optional[str] = Query(default=None),
-    due_before: Optional[datetime] = Query(default=None),
-    db: Session = Depends(get_db),
+        status: Optional[str] = Query(default=None),
+        due_before: Optional[datetime] = Query(default=None),
+        db: Session = Depends(get_db),
 ):
     service = TaskService(db)
     tasks = service.list_tasks(status=status, due_before=due_before)

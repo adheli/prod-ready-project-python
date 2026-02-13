@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 
-from app.db import get_db
-from app.services import JWTManager, UserService
+from user_db import get_db
+from user_services import JWTManager, UserService
 
 router = APIRouter(prefix="/users", tags=["users"])
 

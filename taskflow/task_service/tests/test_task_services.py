@@ -3,20 +3,22 @@ from datetime import datetime, timedelta
 from hypothesis import given, strategies as st
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+import os
 
-from app.db import Base
-from app.services import NullCache, TaskService, UserClient
+from task_db import Base
+from task_services import UserClient, TaskService, NullCache
 
 
 class StubUserClient(UserClient):
     def __init__(self, valid: bool = True):
+        super().__init__()
         self._valid = valid
 
     def validate_user(self, user_id: int) -> bool:
         return self._valid
 
 
-engine = create_engine("sqlite:///:memory:")
+engine = create_engine("sqlite:///./test_task_services.db")
 SessionTesting = sessionmaker(bind=engine)
 Base.metadata.create_all(bind=engine)
 

@@ -8,7 +8,7 @@ from typing import Optional
 import redis
 from sqlalchemy.orm import Session
 
-from app.models import User
+from user_models import User
 
 
 class NullPublisher:
@@ -83,5 +83,5 @@ class UserCreatedPublisher:
         try:
             self._client.publish(self._channel, json.dumps(payload))
         except Exception:
-            # Keep skeleton resilient in local/dev test environments without Redis.
+            # Keep the skeleton resilient in local/dev test environments without Redis.
             pass
