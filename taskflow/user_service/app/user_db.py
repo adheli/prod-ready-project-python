@@ -1,18 +1,15 @@
-from os import getenv
 from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker, Session
 
-DATABASE_URL = getenv("DATABASE_URL", "postgresql+psycopg2://postgres:postgres@postgres:5432/user_db")
+USER_DATABASE_URL = "postgresql+psycopg2://postgres:postgres@postgres:5432/user_db"
 
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
-Base.metadata.create_all(bind=engine)
 
-
-def get_db():
-    db = SessionLocal()
+def get_user_db(database_url: str = USER_DATABASE_URL) -> Session:
+    engine = create_engine(database_url)
+    session_local = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    Base.metadata.create_all(bind=engine)
     try:
-        yield db
+        return session_local()
     finally:
-        db.close()
+        session_local().close()

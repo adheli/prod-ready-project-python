@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from task_db import get_db
+from task_db import get_task_db
 from task_services import TaskService
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
@@ -21,8 +21,8 @@ class UpdateTaskRequest(BaseModel):
     status: str
 
 
-@router.post("")
-def create_task(payload: CreateTaskRequest, db: Session = Depends(get_db)):
+@router.post("", status_code=201)
+def create_task(payload: CreateTaskRequest, db: Session = Depends(get_task_db)):
     service = TaskService(db)
     try:
         task = service.create_task(payload.title, payload.user_id, payload.due_date)
@@ -38,7 +38,7 @@ def create_task(payload: CreateTaskRequest, db: Session = Depends(get_db)):
 
 
 @router.put("/{task_id}")
-def update_task(task_id: int, payload: UpdateTaskRequest, db: Session = Depends(get_db)):
+def update_task(task_id: int, payload: UpdateTaskRequest, db: Session = Depends(get_task_db)):
     service = TaskService(db)
     try:
         task = service.update_task_status(task_id, payload.status)
@@ -54,7 +54,7 @@ def update_task(task_id: int, payload: UpdateTaskRequest, db: Session = Depends(
 
 
 @router.delete("/{task_id}")
-def delete_task(task_id: int, db: Session = Depends(get_db)):
+def delete_task(task_id: int, db: Session = Depends(get_task_db)):
     service = TaskService(db)
     try:
         service.delete_task(task_id)
@@ -64,11 +64,10 @@ def delete_task(task_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("")
-def list_tasks(
-        status: Optional[str] = Query(default=None),
-        due_before: Optional[datetime] = Query(default=None),
-        db: Session = Depends(get_db),
-):
+def list_tasks(status: Optional[str] = Query(default=None),
+               due_before: Optional[datetime] = Query(default=None),
+               db: Session = Depends(get_task_db)
+               ):
     service = TaskService(db)
     tasks = service.list_tasks(status=status, due_before=due_before)
     return [

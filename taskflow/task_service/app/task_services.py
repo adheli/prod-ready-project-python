@@ -1,12 +1,14 @@
+import logging
 import os
 from datetime import datetime
-from typing import Optional
+from typing import Optional, override
 
 import redis
 import requests
+from redis import Redis
 from sqlalchemy.orm import Session
 
-from task_models import Task
+from task_db import Task
 
 
 class NullCache:
@@ -19,7 +21,7 @@ class NullCache:
 
 class UserClient:
     def __init__(self, base_url: Optional[str] = None):
-        self.base_url = base_url or os.getenv("USER_SERVICE_URL", "http://user_service:8000")
+        self.base_url = base_url or os.getenv("USER_SERVICE_URL")
 
     def validate_user(self, user_id: int) -> bool:
         response = requests.get(f"{self.base_url}/users/{user_id}", timeout=3)
@@ -33,8 +35,17 @@ class TaskService:
         if redis_client is not None:
             self.redis_client = redis_client
         else:
-            redis_url = os.getenv("REDIS_URL", "redis://redis:6379/0")
-            self.redis_client = redis.from_url(redis_url)
+            redis_url = os.getenv("REDIS_URL")
+            if not redis_url:
+                logging.warning("No redis URL found, using NullCache")
+                self.redis_client = NullCache()
+            else:
+                try:
+                    self.redis_client = redis.from_url(redis_url)
+                    logging.info("Connected to redis cache")
+                except Exception as e:
+                    logging.error("Error while trying to connect to redis: ",e)
+                    self.redis_client = NullCache()
 
     def create_task(self, title: str, user_id: int, due_date: datetime) -> Task:
         if not self.user_client.validate_user(user_id):
@@ -65,8 +76,8 @@ class TaskService:
         self.db.commit()
         try:
             self.redis_client.delete(f"task:{task_id}")
-        except Exception:
-            pass
+        except RuntimeError:
+            logging.error("Failed to delete task from redis cache")
 
     def list_tasks(self, status: Optional[str] = None, due_before: Optional[datetime] = None):
         query = self.db.query(Task)
@@ -79,5 +90,5 @@ class TaskService:
     def _cache_status(self, task_id: int, status: str) -> None:
         try:
             self.redis_client.setex(f"task:{task_id}", 300, status)
-        except Exception:
-            pass
+        except RuntimeError:
+            logging.error("Failed to cache task status in redis")

@@ -1,12 +1,16 @@
+import os
 from datetime import datetime, timedelta
 
+from dotenv import load_dotenv
 from hypothesis import given, strategies as st
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import os
 
 from task_db import Base
 from task_services import UserClient, TaskService, NullCache
+
+FULL_PATH = os.path.dirname(os.path.abspath(__file__)) + "/test.env"
+load_dotenv(dotenv_path=FULL_PATH, override=True)
 
 
 class StubUserClient(UserClient):
@@ -18,20 +22,19 @@ class StubUserClient(UserClient):
         return self._valid
 
 
-engine = create_engine("sqlite:///./test_task_services.db")
-SessionTesting = sessionmaker(bind=engine)
-Base.metadata.create_all(bind=engine)
-
-
-def make_service(valid_user: bool = True):
-    db = SessionTesting()
-    return TaskService(db, user_client=StubUserClient(valid_user), redis_client=NullCache()), db
+def make_db():
+    engine = create_engine(os.getenv("TASK_DATABASE_URL"))
+    session_testing = sessionmaker(bind=engine)
+    Base.metadata.create_all(bind=engine)
+    db = session_testing()
+    return db
 
 
 def test_create_task_requires_valid_user():
-    service, db = make_service(valid_user=False)
+    db = make_db()
+    service = TaskService(db, user_client=StubUserClient(False), redis_client=NullCache())
     try:
-        service.create_task("Test", user_id=1, due_date=datetime.utcnow())
+        service.create_task("Test", user_id=1, due_date=datetime.now())
         assert False, "Expected ValueError"
     except ValueError:
         pass
@@ -40,7 +43,8 @@ def test_create_task_requires_valid_user():
 
 @given(st.text(min_size=1, max_size=50))
 def test_create_task_with_varied_titles(title: str):
-    service, db = make_service(valid_user=True)
-    task = service.create_task(title, user_id=1, due_date=datetime.utcnow() + timedelta(days=1))
+    db = make_db()
+    service = TaskService(db, user_client=StubUserClient(True), redis_client=NullCache())
+    task = service.create_task(title=title, user_id=1, due_date=datetime.now() + timedelta(days=1))
     assert task.title == title
     db.close()

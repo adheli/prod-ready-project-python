@@ -12,7 +12,8 @@ from user_models import User
 
 
 class NullPublisher:
-    def publish(self, payload: dict) -> None:
+    @staticmethod
+    def publish(payload: dict) -> None:
         _ = payload
 
 
@@ -21,7 +22,8 @@ class UserService:
         self.db = db
         self.publisher = publisher or UserCreatedPublisher()
 
-    def _hash_password(self, password: str) -> str:
+    @staticmethod
+    def _hash_password(password: str) -> str:
         return hashlib.sha256(password.encode("utf-8")).hexdigest()
 
     def create_user(self, name: str, email: str, password: str) -> User:

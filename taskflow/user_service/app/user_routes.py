@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 
-from user_db import get_db
+from user_db import get_user_db
 from user_services import JWTManager, UserService
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -24,7 +24,7 @@ class UpdateProfileRequest(BaseModel):
 
 
 @router.post("/register")
-def register(payload: RegisterUserRequest, db: Session = Depends(get_db)):
+def register(payload: RegisterUserRequest, db: Session = Depends(get_user_db)):
     service = UserService(db)
     try:
         user = service.create_user(payload.name, payload.email, payload.password)
@@ -34,7 +34,7 @@ def register(payload: RegisterUserRequest, db: Session = Depends(get_db)):
 
 
 @router.post("/login")
-def login(payload: LoginRequest, db: Session = Depends(get_db)):
+def login(payload: LoginRequest, db: Session = Depends(get_user_db)):
     service = UserService(db)
     user = service.authenticate(payload.email, payload.password)
     if not user:
@@ -44,7 +44,7 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
 
 
 @router.put("/{user_id}")
-def update_profile(user_id: int, payload: UpdateProfileRequest, db: Session = Depends(get_db)):
+def update_profile(user_id: int, payload: UpdateProfileRequest, db: Session = Depends(get_user_db)):
     service = UserService(db)
     try:
         user = service.update_profile(user_id, payload.name)
@@ -54,7 +54,7 @@ def update_profile(user_id: int, payload: UpdateProfileRequest, db: Session = De
 
 
 @router.get("/{user_id}")
-def get_user(user_id: int, db: Session = Depends(get_db)):
+def get_user(user_id: int, db: Session = Depends(get_user_db)):
     service = UserService(db)
     user = service.get_user(user_id)
     if not user:

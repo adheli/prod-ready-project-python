@@ -1,3 +1,4 @@
+import pytest
 from hypothesis import given, strategies as st
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -5,19 +6,19 @@ from sqlalchemy.orm import sessionmaker
 from user_db import Base
 from user_services import JWTManager, UserService
 
-
 engine = create_engine("sqlite:///:memory:")
 SessionTesting = sessionmaker(bind=engine)
 Base.metadata.create_all(bind=engine)
 
 
+@pytest.fixture
 def make_service():
     db = SessionTesting()
     return UserService(db), db
 
 
-def test_create_and_authenticate_user():
-    service, db = make_service()
+def test_create_and_authenticate_user(make_service):
+    service, db = make_service
     user = service.create_user("Alice", "alice@example.com", "secret")
     assert user.id is not None
     assert service.authenticate("alice@example.com", "secret") is not None

@@ -1,17 +1,42 @@
 import os
+from datetime import datetime
+
+from dotenv import load_dotenv
+from sqlalchemy import Column, DateTime, Integer, String, StaticPool
 from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import sessionmaker, Session, DeclarativeBase
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+psycopg2://postgres:postgres@postgres:5432/task_db")
+load_dotenv()
 
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
-Base.metadata.create_all(bind=engine)
+TASK_DATABASE_URI = os.getenv("TASK_DATABASE_URL")
+CHECK_SAME_THREAD = os.getenv("CHECK_SAME_THREAD")
+
+extra_args = None
+
+if CHECK_SAME_THREAD.lower() == "false":
+    extra_args = {"check_same_thread": False}
+
+ENGINE = create_engine(TASK_DATABASE_URI, poolclass=StaticPool, connect_args=extra_args)
+SESSION_LOCAL = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
 
 
-def get_db():
-    db = SessionLocal()
+class Base(DeclarativeBase):
+    __abstract__ = True
+
+
+class Task(Base):
+    __tablename__ = "tasks"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    status = Column(String, default="pending", nullable=False)
+    due_date = Column(DateTime, default=datetime.now())
+    user_id = Column(Integer, nullable=False, index=True)
+
+
+def get_task_db() -> Session:
+    Base.metadata.create_all(bind=ENGINE)
+    db = SESSION_LOCAL()
     try:
         yield db
     finally:
