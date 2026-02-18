@@ -6,11 +6,11 @@ from hypothesis import given, strategies as st
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from task_db import Base
-from task_services import UserClient, TaskService, NullCache
-
 FULL_PATH = os.path.dirname(os.path.abspath(__file__)) + "/test.env"
 load_dotenv(dotenv_path=FULL_PATH, override=True)
+
+from task_db import Base
+from task_services import UserClient, TaskService, NullCache
 
 
 class StubUserClient(UserClient):

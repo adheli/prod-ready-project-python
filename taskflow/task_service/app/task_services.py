@@ -1,11 +1,10 @@
 import logging
 import os
 from datetime import datetime
-from typing import Optional, override
+from typing import Optional
 
 import redis
 import requests
-from redis import Redis
 from sqlalchemy.orm import Session
 
 from task_db import Task
@@ -44,7 +43,7 @@ class TaskService:
                     self.redis_client = redis.from_url(redis_url)
                     logging.info("Connected to redis cache")
                 except Exception as e:
-                    logging.error("Error while trying to connect to redis: ",e)
+                    logging.error("Error while trying to connect to redis: ", e)
                     self.redis_client = NullCache()
 
     def create_task(self, title: str, user_id: int, due_date: datetime) -> Task:

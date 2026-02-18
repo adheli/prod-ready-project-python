@@ -6,7 +6,6 @@ from fastapi.testclient import TestClient
 
 FULL_PATH = os.path.dirname(os.path.abspath(__file__)) + "/test.env"
 load_dotenv(dotenv_path=FULL_PATH, override=True)
-os.environ["TASK_DATABASE_URL"] = "sqlite:///./test_task_routes.db"
 
 import task_services
 from task_main import api
