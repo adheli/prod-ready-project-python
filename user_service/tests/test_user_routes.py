@@ -1,7 +1,7 @@
 import os
 
 from fastapi.testclient import TestClient
-from user_main import app
+from main import app
 
 os.environ["DATABASE_URL"] = "sqlite:///:memory"
 os.environ["REDIS_URL"] = "redis://localhost:6379/0"
