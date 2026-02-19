@@ -1,4 +1,6 @@
+import logging
 import os
+import sys
 from datetime import datetime, timedelta
 
 from dotenv import load_dotenv
@@ -7,12 +9,16 @@ from fastapi.testclient import TestClient
 FULL_PATH = os.path.dirname(os.path.abspath(__file__)) + "/test.env"
 load_dotenv(dotenv_path=FULL_PATH, override=True)
 
-import task_services
-from main import app
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+logging.info(PROJECT_ROOT)
+sys.path.append(PROJECT_ROOT)
+
+import app.task_services as service
+from app.main import app
 
 
 def test_create_and_list_task_flow(monkeypatch):
-    monkeypatch.setattr(task_services.UserClient, "validate_user", lambda self, user_id: True)
+    monkeypatch.setattr(service.UserClient, "validate_user", lambda self, user_id: True)
     client = TestClient(app)
 
     create = client.post(

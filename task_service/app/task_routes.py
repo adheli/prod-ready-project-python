@@ -5,8 +5,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from task_db import get_task_db
-from task_services import TaskService
+from app.task_db import get_task_db
+from app.task_services import TaskService
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 

@@ -1,4 +1,5 @@
-import os
+import logging
+import os, sys
 from datetime import datetime, timedelta
 
 from dotenv import load_dotenv
@@ -9,8 +10,12 @@ from sqlalchemy.orm import sessionmaker
 FULL_PATH = os.path.dirname(os.path.abspath(__file__)) + "/test.env"
 load_dotenv(dotenv_path=FULL_PATH, override=True)
 
-from task_db import Base
-from task_services import UserClient, TaskService, NullCache
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+logging.info(PROJECT_ROOT)
+sys.path.append(PROJECT_ROOT)
+
+from app.task_db import Base
+from app.task_services import UserClient, TaskService, NullCache
 
 
 class StubUserClient(UserClient):

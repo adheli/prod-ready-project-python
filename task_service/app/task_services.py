@@ -7,7 +7,7 @@ import redis
 import requests
 from sqlalchemy.orm import Session
 
-from task_db import Task
+from app.task_db import Task
 
 
 class NullCache:

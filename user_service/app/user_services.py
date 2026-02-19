@@ -9,12 +9,12 @@ from typing import Optional
 import redis
 from sqlalchemy.orm import Session
 
-from user_models import User
+from app.user_models import User
 
 
 class NullPublisher:
-    def publish(self, payload: dict) -> None:
-        _ = payload
+    def publish(self, channel, payload: dict) -> None:
+        _ = channel, payload
 
 
 class UserService:

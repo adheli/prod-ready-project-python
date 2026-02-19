@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 FULL_PATH = os.path.dirname(os.path.abspath(__file__)) + "/test.env"
 load_dotenv(dotenv_path=FULL_PATH, override=True)
 
-from main import app
+from app.main import app
 
 client = TestClient(app)
 

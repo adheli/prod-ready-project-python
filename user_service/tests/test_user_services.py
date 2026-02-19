@@ -3,8 +3,8 @@ from hypothesis import given, strategies as st
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from user_db import Base
-from user_services import JWTManager, UserService
+from app.user_db import Base
+from app.user_services import JWTManager, UserService
 
 engine = create_engine("sqlite:///:memory:")
 SessionTesting = sessionmaker(bind=engine)
