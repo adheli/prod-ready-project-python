@@ -8,12 +8,12 @@ FULL_PATH = os.path.dirname(os.path.abspath(__file__)) + "/test.env"
 load_dotenv(dotenv_path=FULL_PATH, override=True)
 
 import task_services
-from task_main import api
+from main import app
 
 
 def test_create_and_list_task_flow(monkeypatch):
     monkeypatch.setattr(task_services.UserClient, "validate_user", lambda self, user_id: True)
-    client = TestClient(api)
+    client = TestClient(app)
 
     create = client.post(
         "/tasks",

@@ -1,15 +1,30 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker, Session
+import os
 
-USER_DATABASE_URL = "postgresql+psycopg2://postgres:postgres@postgres:5432/user_db"
+from dotenv import load_dotenv
+from sqlalchemy import create_engine, StaticPool
+from sqlalchemy.orm import sessionmaker, Session, DeclarativeBase
 
-Base = declarative_base()
+load_dotenv()
 
-def get_user_db(database_url: str = USER_DATABASE_URL) -> Session:
-    engine = create_engine(database_url)
-    session_local = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-    Base.metadata.create_all(bind=engine)
+ENGINE = None
+
+if os.getenv("DISABLE_CHECK_SAME_THREAD").lower() == "true":
+    extra_args = {"check_same_thread": False}
+    ENGINE = create_engine(os.getenv("USER_DATABASE_URL"), poolclass=StaticPool, connect_args=extra_args)
+else:
+    ENGINE = create_engine(os.getenv("USER_DATABASE_URL"), poolclass=StaticPool)
+
+SESSION_LOCAL = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
+
+
+class Base(DeclarativeBase):
+    __abstract__ = True
+
+
+def get_user_db() -> Session:
+    Base.metadata.create_all(bind=ENGINE)
+    db = SESSION_LOCAL()
     try:
-        return session_local()
+        yield db
     finally:
-        session_local().close()
+        db.close()

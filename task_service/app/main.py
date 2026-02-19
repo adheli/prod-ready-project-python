@@ -1,6 +1,14 @@
+import logging
+import os
+import sys
+
 from fastapi import FastAPI
+
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+logging.info(PROJECT_ROOT)
+sys.path.append(PROJECT_ROOT)
 
 from task_routes import router
 
-api = FastAPI(title="Task Service")
-api.include_router(router)
+app = FastAPI(title="Task Service")
+app.include_router(router)

@@ -1,6 +1,7 @@
 import hashlib
 import hmac
 import json
+import logging
 import os
 import time
 from typing import Optional
@@ -12,8 +13,7 @@ from user_models import User
 
 
 class NullPublisher:
-    @staticmethod
-    def publish(payload: dict) -> None:
+    def publish(self, payload: dict) -> None:
         _ = payload
 
 
@@ -78,12 +78,14 @@ class UserCreatedPublisher:
         self._channel = "user.created"
         self._client = client
         if self._client is None:
-            redis_url = os.getenv("REDIS_URL", "redis://redis:6379/0")
-            self._client = redis.from_url(redis_url)
+            redis_url = os.getenv("REDIS_URL")
+            if redis_url is None or redis_url == "":
+                self._client = NullPublisher()
+            else:
+                self._client = redis.from_url(redis_url)
 
     def publish(self, payload: dict) -> None:
         try:
             self._client.publish(self._channel, json.dumps(payload))
-        except Exception:
-            # Keep the skeleton resilient in local/dev test environments without Redis.
-            pass
+        except Exception as excp:
+            logging.error(f"Failed to publish user created event: {excp}")

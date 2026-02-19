@@ -9,14 +9,16 @@ from sqlalchemy.orm import sessionmaker, Session, DeclarativeBase
 load_dotenv()
 
 TASK_DATABASE_URI = os.getenv("TASK_DATABASE_URL")
-CHECK_SAME_THREAD = os.getenv("CHECK_SAME_THREAD")
+DISABLE_CHECK_SAME_THREAD = os.getenv("DISABLE_CHECK_SAME_THREAD")
 
-extra_args = None
+ENGINE = None
 
-if CHECK_SAME_THREAD.lower() == "false":
+if DISABLE_CHECK_SAME_THREAD.lower() == "true":
     extra_args = {"check_same_thread": False}
+    ENGINE = create_engine(TASK_DATABASE_URI, poolclass=StaticPool, connect_args=extra_args)
+else:
+    ENGINE = create_engine(TASK_DATABASE_URI, poolclass=StaticPool)
 
-ENGINE = create_engine(TASK_DATABASE_URI, poolclass=StaticPool, connect_args=extra_args)
 SESSION_LOCAL = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
 
 

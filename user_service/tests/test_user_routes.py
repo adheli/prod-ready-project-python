@@ -1,11 +1,12 @@
 import os
 
+from dotenv import load_dotenv
 from fastapi.testclient import TestClient
+
+FULL_PATH = os.path.dirname(os.path.abspath(__file__)) + "/test.env"
+load_dotenv(dotenv_path=FULL_PATH, override=True)
+
 from main import app
-
-os.environ["DATABASE_URL"] = "sqlite:///:memory"
-os.environ["REDIS_URL"] = "redis://localhost:6379/0"
-
 
 client = TestClient(app)
 
