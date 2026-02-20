@@ -1,3 +1,7 @@
+"""
+Main entry point for the Task Service API.
+This module initializes the FastAPI application and includes all defined routers.
+"""
 import logging
 import os
 import sys

@@ -1,3 +1,7 @@
+"""
+Database configuration and models for the Task Service.
+This module handles SQLAlchemy engine creation, session management, and task entity definitions.
+"""
 import os
 from datetime import datetime
 
@@ -23,10 +27,16 @@ SESSION_LOCAL = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
 
 
 class Base(DeclarativeBase):
+    """
+    Base class for SQLAlchemy declarative models.
+    """
     __abstract__ = True
 
 
 class Task(Base):
+    """
+    SQLAlchemy model representing a task entity in the database.
+    """
     __tablename__ = "tasks"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -37,6 +47,12 @@ class Task(Base):
 
 
 def get_task_db() -> Session:
+    """
+    Dependency to provide a database session for each request.
+    Ensures all tables are created and handles session cleanup.
+    Yields:
+        Session: A SQLAlchemy database session.
+    """
     Base.metadata.create_all(bind=ENGINE)
     db = SESSION_LOCAL()
     try:
