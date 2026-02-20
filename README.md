@@ -18,25 +18,23 @@ This folder contains a production-style FastAPI skeleton with two microservices:
 ## Architecture
 
 ```text
-taskflow/
-├── user_service/
-│   ├── app/
-│   ├── tests/
-│   ├── Dockerfile
-│   └── requirements.txt
-├── task_service/
-│   ├── app/
-│   ├── tests/
-│   ├── Dockerfile
-│   └── requirements.txt
-├── docker-compose.yml
-└── .github/workflows/ci.yml
+
+user_service/
+├── app/
+├── tests/
+task_service/
+├── app/
+├── tests/
+docker-compose.yml
+task.Dockerfile
+user.Dockerfile
+requirements.txt
+.github/workflows/ci.yml
 ```
 
 ## Local Run
 
 ```bash
-cd taskflow
 docker compose up --build
 ```
 
@@ -48,8 +46,8 @@ docker compose up --build
 Run tests per service:
 
 ```bash
-cd taskflow/user_service && pytest
-cd taskflow/task_service && pytest
+cd user_service && pytest
+cd task_service && pytest
 ```
 
 Includes:
