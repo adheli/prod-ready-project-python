@@ -12,7 +12,7 @@ if os.getenv("DISABLE_CHECK_SAME_THREAD").lower() == "true":
     extra_args = {"check_same_thread": False}
     ENGINE = create_engine(os.getenv("USER_DATABASE_URL"), poolclass=StaticPool, connect_args=extra_args)
 else:
-    ENGINE = create_engine(os.getenv("USER_DATABASE_URL"), poolclass=StaticPool)
+    ENGINE = create_engine(os.getenv("USER_DATABASE_URL"))
 
 SESSION_LOCAL = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
 
